@@ -1,0 +1,21 @@
+# OS / editor cruft
+.DS_Store
+*.swp
+.idea/
+.vscode/
+
+# Python
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# Local outputs / scratch
+out/
+bio-age-out/
+*.local.html
+*.local.pdf
+
+# User-specific test inputs (don't accidentally commit health data)
+private/
+my-*.txt
+my-*.jsonl

@@ -1,0 +1,32 @@
+{
+  "alert_id": "bio-age-git-stale-2026-05-01T01-31-06-006d0cc5",
+  "ts": "2026-05-01T01:31:06+09:00",
+  "project": "bio-age",
+  "pattern": "git-stale",
+  "severity_initial": "cleanup",
+  "severity_final": "cleanup",
+  "raw": {
+    "message": "📝 **`bio-age`** 工作目录有 20 文件没 commit + 20573d 没新 commit\n   👉 *建议*：回我「看 bio-age」我列 git status 给你看 + 帮 commit / 清理",
+    "meta": null,
+    "pattern": "git-stale",
+    "project": "bio-age"
+  },
+  "message": "📝 **`bio-age`** 工作目录有 20 文件没 commit + 20573d 没新 commit\n   👉 *建议*：回我「看 bio-age」我列 git status 给你看 + 帮 commit / 清理",
+  "detail": "",
+  "diagnosis": {
+    "verify_cmd": "",
+    "exit": 0,
+    "stdout": "",
+    "stderr": "",
+    "duration_ms": 0,
+    "classification": "emitted",
+    "evidence": []
+  },
+  "discord_posted": true,
+  "discord_message_id": null,
+  "rick_resolution": null,
+  "meta": {
+    "dedupe_key": "006d0cc5",
+    "dedupe_source": "raw-json"
+  }
+}

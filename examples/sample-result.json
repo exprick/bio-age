@@ -1,0 +1,17 @@
+{
+  "blind": false,
+  "organs": {
+    "overall biological age": 44,
+    "cardiovascular age": 47,
+    "hepatic age": 42,
+    "pulmonary age": 41,
+    "renal age": 43,
+    "metabolic system age": 46,
+    "musculoskeletal age": 48
+  },
+  "inference": "Mock inference for CSS testing — covers all severity classes (.good / .warn / .bad) when chronological reference is set.",
+  "estimated_chronological_age": 45,
+  "chronological_age_confidence": "Mock confidence string for layout testing.",
+  "generated_at": "2026-05-01T00:00:00",
+  "model": "mock — for CSS testing only"
+}

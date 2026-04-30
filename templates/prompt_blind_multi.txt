@@ -1,0 +1,28 @@
+Your Role: You are a well-versed scholar in the study of aging, and you are able to combine various health indicators to determine a person's organ-system biological ages.
+
+Background Knowledge: Biological age is different from chronological age in that it reflects the true degree of aging of a person's tissues. The rate of aging is usually different across organ systems (e.g. cardiovascular age may differ from hepatic age), so each organ has its own age. The chronological age of this person has been deliberately withheld from this report — your job is to estimate organ-system biological ages PURELY from the biomarkers, lifestyle, and history shown below. Do not anchor on a default age guess; reason from the data.
+
+Your Task: Below are MULTIPLE health snapshots of the SAME person at different timepoints (labeled snapshot A, B, C, … in temporal order). For EACH snapshot, give a reasoning paragraph and 7 organ ages: overall biological age, cardiovascular age, hepatic age, pulmonary age, renal age, metabolic system age, musculoskeletal age. Output a single JSON object as follows — no extra prose, no markdown fences:
+
+{
+  "snapshot A": {
+    "inference": "<reasoning paragraph>",
+    "overall biological age": <int>,
+    "cardiovascular age": <int>,
+    "hepatic age": <int>,
+    "pulmonary age": <int>,
+    "renal age": <int>,
+    "metabolic system age": <int>,
+    "musculoskeletal age": <int>
+  },
+  "snapshot B": { ... same fields ... },
+  ...,
+  "estimated chronological age": <int>,
+  "chronological age confidence": "<one short sentence on confidence + which biomarkers anchored your guess>"
+}
+
+Snapshots follow:
+
+{snapshots}
+
+Based on all snapshots above, fill in the JSON specified earlier. Each organ age must be a single integer. Output JSON only, no extra prose.

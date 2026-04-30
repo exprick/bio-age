@@ -1,0 +1,206 @@
+#!/usr/bin/env bash
+# bio-age — cross-vendor entrypoint
+#
+# Modes:
+#   bio-age standard  <input.txt|->                — replicate paper, public age
+#   bio-age blind     <input.txt|->                — single snapshot, age scrubbed
+#   bio-age trend     <inp1.txt> <inp2.txt> ...    — multi-snapshot, scrubbed, single combined prompt
+#
+# Common flags:
+#   --output DIR        output directory (default ./bio-age-out)
+#   --html              also write HTML report (default on)
+#   --pdf               also write PDF report (default on; needs Chrome)
+#   --no-pdf            skip PDF
+#   --runner ARG        which LLM to call: claude (default — current session) | codex | ollama:MODEL | dryrun (just emit prompt)
+#   --json PATH         override JSON output path
+#
+# Output structure under DIR:
+#   prompt.txt           — the actual prompt fed to the model (audit trail)
+#   raw.txt              — model's raw output
+#   result.json          — parsed JSON with organs + metadata
+#   report.html          — polished HTML report
+#   report.pdf           — print-quality PDF (if Chrome found)
+#
+# Examples:
+#   bio-age blind ~/health/exam.txt
+#   bio-age trend t1.txt t2.txt t3.txt --output ./trend-out
+#   bio-age standard exam.txt --runner ollama:gemma4:31b
+#
+set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")"/.. && pwd)"
+TEMPLATES="$SCRIPT_DIR/templates"
+SCRIPTS="$SCRIPT_DIR/scripts"
+
+MODE=""
+OUT_DIR="./bio-age-out"
+RUNNER="claude"
+WRITE_HTML=1
+WRITE_PDF=1
+WRITE_JPG=1
+INPUTS=()
+JSON_OVERRIDE=""
+
+usage() {
+  sed -n '2,30p' "$0"
+  exit 1
+}
+
+[[ $# -ge 1 ]] || usage
+
+# Mode is optional; default to blind. If first arg is one of the known modes, consume it; else assume blind.
+case "$1" in
+  standard|blind|trend) MODE="$1"; shift ;;
+  -h|--help) usage ;;
+  *) MODE="blind" ;;   # default = blind
+esac
+
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --output) OUT_DIR="$2"; shift 2 ;;
+    --html) WRITE_HTML=1; shift ;;
+    --pdf)  WRITE_PDF=1;  shift ;;
+    --no-pdf) WRITE_PDF=0; WRITE_JPG=0; shift ;;
+    --no-html) WRITE_HTML=0; shift ;;
+    --jpg) WRITE_JPG=1; shift ;;
+    --no-jpg) WRITE_JPG=0; shift ;;
+    --runner) RUNNER="$2"; shift 2 ;;
+    --json) JSON_OVERRIDE="$2"; shift 2 ;;
+    -h|--help) usage ;;
+    *) INPUTS+=("$1"); shift ;;
+  esac
+done
+
+if [[ "$MODE" != "trend" && ${#INPUTS[@]} -ne 1 ]]; then
+  echo "[$MODE] expected exactly one input file (got ${#INPUTS[@]})" >&2; exit 2
+fi
+if [[ "$MODE" == "trend" && ${#INPUTS[@]} -lt 2 ]]; then
+  echo "[trend] expected ≥ 2 input files (got ${#INPUTS[@]})" >&2; exit 2
+fi
+
+mkdir -p "$OUT_DIR"
+PROMPT_PATH="$OUT_DIR/prompt.txt"
+RAW_PATH="$OUT_DIR/raw.txt"
+JSON_PATH="${JSON_OVERRIDE:-$OUT_DIR/result.json}"
+HTML_PATH="$OUT_DIR/report.html"
+PDF_PATH="$OUT_DIR/report.pdf"
+
+read_input() {
+  local f="$1"
+  if [[ "$f" == "-" ]]; then cat; else cat "$f"; fi
+}
+
+scrub() {
+  python3 "$SCRIPTS/scrub_age.py"
+}
+
+# Build the prompt
+case "$MODE" in
+  standard)
+    INPUT_TEXT="$(read_input "${INPUTS[0]}")"
+    awk -v r="$INPUT_TEXT" 'BEGIN{n=split(r, a, "\n")} { gsub(/\{input\}/, r); print }' \
+      "$TEMPLATES/prompt_paper.txt" > "$PROMPT_PATH" 2>/dev/null || \
+      python3 -c "
+import sys
+tpl = open('$TEMPLATES/prompt_paper.txt').read()
+inp = sys.stdin.read()
+sys.stdout.write(tpl.replace('{input}', inp))
+" <<< "$INPUT_TEXT" > "$PROMPT_PATH"
+    ;;
+  blind)
+    INPUT_TEXT="$(read_input "${INPUTS[0]}" | scrub)"
+    python3 -c "
+import sys
+tpl = open('$TEMPLATES/prompt_blind_single.txt').read()
+inp = sys.stdin.read()
+sys.stdout.write(tpl.replace('{input}', inp))
+" <<< "$INPUT_TEXT" > "$PROMPT_PATH"
+    ;;
+  trend)
+    LABELS=("snapshot A" "snapshot B" "snapshot C" "snapshot D" "snapshot E" "snapshot F")
+    SNAPSHOTS=""
+    i=0
+    for f in "${INPUTS[@]}"; do
+      LABEL="${LABELS[$i]:-snapshot $((i+1))}"
+      DATE=""
+      if [[ "$f" =~ ([0-9]{4}-[0-9]{2}-[0-9]{2}) ]]; then
+        DATE=" (collection date ${BASH_REMATCH[1]})"
+      fi
+      SCRUBBED="$(read_input "$f" | scrub)"
+      SNAPSHOTS+=$'\n=== '"$LABEL$DATE"$' ===\n'"$SCRUBBED"$'\n'
+      i=$((i+1))
+    done
+    python3 -c "
+import sys
+tpl = open('$TEMPLATES/prompt_blind_multi.txt').read()
+sys.stdout.write(tpl.replace('{snapshots}', sys.stdin.read()))
+" <<< "$SNAPSHOTS" > "$PROMPT_PATH"
+    ;;
+esac
+
+PROMPT_CHARS="$(wc -c < "$PROMPT_PATH" | tr -d ' ')"
+echo "[bio-age] mode=$MODE  runner=$RUNNER  prompt=${PROMPT_CHARS} chars  → $PROMPT_PATH"
+
+# Run the model
+if [[ "$RUNNER" == "dryrun" ]]; then
+  echo "[bio-age] runner=dryrun — prompt-only mode, no LLM call"
+  cat > "$RAW_PATH" <<'EOF'
+{
+  "_dryrun": true,
+  "_message": "No LLM was called. Edit prompt.txt manually then paste the model output into raw.txt to continue."
+}
+EOF
+elif [[ "$RUNNER" == "claude" ]]; then
+  # Run via the parent Claude session — see SKILL.md. The /skill description tells the
+  # invoking agent to read prompt.txt, produce JSON, and write it to raw.txt manually.
+  echo "[bio-age] runner=claude — the calling Claude/Codex/OpenClaw agent should now:"
+  echo "  1. Read $PROMPT_PATH"
+  echo "  2. Produce the JSON answer"
+  echo "  3. Write it to $RAW_PATH"
+  echo "  4. Re-run with --runner skip-llm to continue parse + render"
+  if [[ ! -s "$RAW_PATH" ]]; then
+    echo "[bio-age] $RAW_PATH is empty; skipping parse/render. Continue manually after answer is written."
+    exit 0
+  fi
+elif [[ "$RUNNER" == "skip-llm" ]]; then
+  if [[ ! -s "$RAW_PATH" ]]; then
+    echo "[bio-age] --runner skip-llm but $RAW_PATH is empty" >&2; exit 3
+  fi
+elif [[ "$RUNNER" == "codex" ]]; then
+  command -v codex > /dev/null || { echo "[bio-age] codex CLI not found" >&2; exit 4; }
+  codex exec --skip-git-repo-check -c model_reasoning_effort=high "$(cat "$PROMPT_PATH")" > "$RAW_PATH"
+elif [[ "$RUNNER" =~ ^ollama: ]]; then
+  MODEL="${RUNNER#ollama:}"
+  command -v ollama > /dev/null || { echo "[bio-age] ollama not found" >&2; exit 4; }
+  ollama run "$MODEL" < "$PROMPT_PATH" > "$RAW_PATH"
+else
+  echo "[bio-age] unknown runner: $RUNNER" >&2; exit 5
+fi
+
+# Parse JSON
+python3 "$SCRIPTS/parse_result.py" --mode "$MODE" --raw "$RAW_PATH" --out "$JSON_PATH" || {
+  echo "[bio-age] JSON parse failed; raw output kept at $RAW_PATH" >&2
+  exit 6
+}
+echo "[bio-age] parsed → $JSON_PATH"
+
+# Render HTML / PDF
+if [[ "$WRITE_HTML" == 1 ]]; then
+  RENDER_ARGS=(--html "$HTML_PATH")
+  [[ "$WRITE_PDF" == 1 ]] && RENDER_ARGS+=(--pdf "$PDF_PATH") || RENDER_ARGS+=(--no-pdf)
+  python3 "$SCRIPTS/render_report.py" "$JSON_PATH" "${RENDER_ARGS[@]}"
+fi
+
+# Convert PDF pages → JPG cards (for social sharing)
+if [[ "$WRITE_JPG" == 1 && "$WRITE_PDF" == 1 && -f "$PDF_PATH" ]]; then
+  if command -v pdftoppm > /dev/null 2>&1; then
+    (cd "$OUT_DIR" && pdftoppm -jpeg -r 200 "$(basename "$PDF_PATH")" page > /dev/null 2>&1)
+    JPG_COUNT=$(ls "$OUT_DIR"/page-*.jpg 2>/dev/null | wc -l | tr -d ' ')
+    echo "[bio-age] $JPG_COUNT JPG card(s) → $OUT_DIR/page-*.jpg"
+  else
+    echo "[bio-age] pdftoppm not found (brew install poppler) — skipping JPG conversion"
+  fi
+fi
+
+echo "[bio-age] done. Output dir: $OUT_DIR"
+ls -la "$OUT_DIR" | tail -n +2

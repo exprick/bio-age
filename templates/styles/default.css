@@ -1,0 +1,513 @@
+/* bio-age — modern editorial design.
+ * One organ = one page = one shareable JPG. Type-driven, generous whitespace, minimal color.
+ * Hero numbers carry the entire visual weight. Status conveyed by left-edge accent + text color.
+ */
+
+:root {
+  /* canvas */
+  --bg:           #fafaf7;
+  --surface:      #ffffff;
+  --hairline:     #ebe9e3;
+  --rule:         #d8d5cc;
+
+  /* text */
+  --ink:          #0a0a0a;
+  --ink-soft:     #2a2a2a;
+  --muted:        #6b6b6b;
+  --faint:        #9d9d9d;
+  --whisper:      #c4c4c4;
+
+  /* accents */
+  --accent:       #1a3a5c;     /* deep navy, used sparingly */
+  --young:        #1f6b44;     /* deep emerald */
+  --young-tint:   #ecf3ee;
+  --aging:        #8a5a1a;     /* warm bronze */
+  --aging-tint:   #f3ebd9;
+  --elderly:      #a02a3a;     /* deep crimson */
+  --elderly-tint: #f1e1e1;
+  --neutral-tint: #f0f0eb;
+
+  --display-stack: "Inter Display", "Inter", "Söhne", "Helvetica Neue",
+                   "PingFang SC", "Hiragino Sans GB", system-ui, sans-serif;
+  --text-stack:   "Inter", "Söhne", "Helvetica Neue",
+                  "PingFang SC", "Hiragino Sans GB", system-ui, sans-serif;
+  --mono-stack:   "JetBrains Mono", "SF Mono", Consolas, Monaco, monospace;
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--text-stack);
+  font-size: 15px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-feature-settings: "ss01", "cv11";
+}
+
+/* ─────────────── Page wrapper (one per section) ─────────────── */
+.page {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 96px 64px 88px;
+  page-break-after: always;
+  break-after: page;
+  position: relative;
+  min-height: calc(100vh - 0px);
+}
+.page:last-child { page-break-after: auto; break-after: auto; }
+
+/* ─────────────── Eyebrow + meta line at top of every page ─────────────── */
+.eyebrow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-family: var(--text-stack);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin: 0 0 80px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid var(--hairline);
+}
+.eyebrow .left,
+.eyebrow .right { display: inline-flex; gap: 16px; align-items: center; }
+.eyebrow .index { color: var(--ink); font-weight: 600; }
+
+/* ─────────────── Cover page ─────────────── */
+.cover-title {
+  font-family: var(--display-stack);
+  font-weight: 500;
+  font-size: 28px;
+  line-height: 1.15;
+  letter-spacing: -0.01em;
+  color: var(--ink);
+  margin: 0 0 12px;
+}
+.cover-lede {
+  font-family: var(--text-stack);
+  font-size: 15px;
+  line-height: 1.55;
+  color: var(--muted);
+  margin: 0 0 96px;
+  max-width: 480px;
+}
+
+.hero-age {
+  display: flex;
+  align-items: flex-end;
+  gap: 32px;
+  margin: 0 0 24px;
+}
+.hero-age .num {
+  font-family: var(--display-stack);
+  font-weight: 200;
+  font-size: 184px;
+  line-height: 0.9;
+  letter-spacing: -0.06em;
+  color: var(--ink);
+  font-feature-settings: "tnum", "ss01";
+  font-variant-numeric: tabular-nums;
+}
+.hero-age .meta {
+  padding-bottom: 20px;
+  flex: 1;
+}
+.hero-age .label {
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin: 0 0 6px;
+}
+.hero-age .estimate {
+  font-family: var(--display-stack);
+  font-size: 17px;
+  font-weight: 500;
+  color: var(--ink-soft);
+  margin: 0;
+}
+.hero-age .conf {
+  font-size: 13px;
+  font-weight: 400;
+  color: var(--muted);
+  line-height: 1.55;
+  margin: 8px 0 0;
+  max-width: 320px;
+}
+
+.cover-summary {
+  margin: 96px 0 0;
+}
+.summary-title {
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin: 0 0 24px;
+}
+.summary-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1px;
+  background: var(--hairline);
+  border: 1px solid var(--hairline);
+}
+.summary-cell {
+  background: var(--surface);
+  padding: 22px 18px 24px;
+  position: relative;
+}
+.summary-cell .organ {
+  font-family: var(--text-stack);
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--ink-soft);
+  margin: 0 0 4px;
+  letter-spacing: 0.02em;
+}
+.summary-cell .organ-en {
+  display: block;
+  font-size: 9px;
+  font-weight: 500;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--whisper);
+  margin-top: 2px;
+}
+.summary-cell .age-num {
+  font-family: var(--display-stack);
+  font-weight: 300;
+  font-size: 44px;
+  line-height: 1;
+  letter-spacing: -0.04em;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+  margin-top: 14px;
+}
+.summary-cell .delta {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--muted);
+  margin-top: 6px;
+  letter-spacing: 0.02em;
+}
+.summary-cell.young .age-num,
+.summary-cell.young .delta { color: var(--young); }
+.summary-cell.aging .age-num,
+.summary-cell.aging .delta { color: var(--aging); }
+.summary-cell.elderly .age-num,
+.summary-cell.elderly .delta { color: var(--elderly); }
+
+/* ─────────────── Organ detail page ─────────────── */
+.organ-page .head {
+  display: flex;
+  align-items: baseline;
+  gap: 16px;
+  margin: 0 0 18px;
+}
+.organ-page .organ-cn {
+  font-family: var(--display-stack);
+  font-weight: 500;
+  font-size: 30px;
+  line-height: 1.1;
+  letter-spacing: -0.005em;
+  color: var(--ink);
+  margin: 0;
+}
+.organ-page .organ-en {
+  font-family: var(--text-stack);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--whisper);
+  margin: 0;
+}
+
+.organ-hero {
+  display: flex;
+  align-items: flex-end;
+  gap: 28px;
+  margin: 0 0 56px;
+  padding: 0 0 0 16px;
+  border-left: 3px solid var(--ink);
+}
+.organ-page.young .organ-hero    { border-left-color: var(--young); }
+.organ-page.aging .organ-hero    { border-left-color: var(--aging); }
+.organ-page.elderly .organ-hero  { border-left-color: var(--elderly); }
+
+.organ-hero .num {
+  font-family: var(--display-stack);
+  font-weight: 200;
+  font-size: 144px;
+  line-height: 0.92;
+  letter-spacing: -0.05em;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+}
+.organ-page.young .organ-hero .num   { color: var(--young); }
+.organ-page.aging .organ-hero .num   { color: var(--aging); }
+.organ-page.elderly .organ-hero .num { color: var(--elderly); }
+
+.organ-hero .meta {
+  padding-bottom: 18px;
+  flex: 1;
+}
+.organ-hero .meta .delta-line {
+  font-family: var(--display-stack);
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--muted);
+  margin: 0 0 6px;
+}
+.organ-hero .meta .delta-line .delta-num {
+  color: var(--ink);
+  font-feature-settings: "tnum";
+}
+.organ-page.young .organ-hero .meta .delta-line .delta-num { color: var(--young); }
+.organ-page.aging .organ-hero .meta .delta-line .delta-num { color: var(--aging); }
+.organ-page.elderly .organ-hero .meta .delta-line .delta-num { color: var(--elderly); }
+
+.organ-hero .meta .status {
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin: 0;
+}
+
+/* ─────────────── Plain language paragraph ─────────────── */
+.organ-plain {
+  font-family: var(--text-stack);
+  font-size: 19px;
+  font-weight: 400;
+  line-height: 1.55;
+  color: var(--ink-soft);
+  letter-spacing: -0.005em;
+  margin: 0 0 64px;
+  max-width: 600px;
+}
+
+/* ─────────────── Intervention sections ─────────────── */
+.actions {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 40px;
+}
+
+.action-group {
+  position: relative;
+}
+.action-head {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  padding: 0 0 12px;
+  margin: 0 0 14px;
+  border-bottom: 1px solid var(--hairline);
+}
+.action-name {
+  font-family: var(--display-stack);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--ink);
+}
+.action-en {
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--whisper);
+}
+.action-count {
+  margin-left: auto;
+  font-family: var(--mono-stack);
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--faint);
+  letter-spacing: 0.02em;
+}
+
+.action-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.action-list li {
+  font-family: var(--text-stack);
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.55;
+  color: var(--ink-soft);
+  padding: 8px 0 8px 22px;
+  position: relative;
+}
+.action-list li::before {
+  content: "";
+  position: absolute;
+  left: 4px;
+  top: 16px;
+  width: 8px;
+  height: 1px;
+  background: var(--whisper);
+}
+.action-list li:not(:last-child) {
+  border-bottom: 1px solid var(--hairline);
+}
+
+/* ─────────────── Methodology page ─────────────── */
+.method-block { margin: 0 0 48px; }
+.method-block .label {
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--whisper);
+  margin: 0 0 8px;
+}
+.method-block .body {
+  font-family: var(--text-stack);
+  font-size: 14px;
+  line-height: 1.65;
+  color: var(--ink-soft);
+  margin: 0 0 6px;
+  max-width: 580px;
+}
+.method-block .body a {
+  color: var(--accent);
+  text-decoration: none;
+  border-bottom: 1px solid var(--hairline);
+}
+.method-block .meta {
+  font-family: var(--mono-stack);
+  font-size: 11px;
+  color: var(--muted);
+  letter-spacing: 0.02em;
+  margin: 0;
+}
+
+/* ─────────────── Page footer (every page bottom) ─────────────── */
+.page-footer {
+  position: absolute;
+  bottom: 48px;
+  left: 64px;
+  right: 64px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-family: var(--mono-stack);
+  font-size: 10px;
+  letter-spacing: 0.04em;
+  color: var(--whisper);
+  padding-top: 16px;
+  border-top: 1px solid var(--hairline);
+}
+.page-footer .left,
+.page-footer .right { display: inline-flex; gap: 14px; align-items: center; }
+.page-footer a {
+  color: var(--muted);
+  text-decoration: none;
+}
+
+/* ─────────────── Print rules ─────────────── */
+@page {
+  size: A4;
+  margin: 0;
+  background: var(--bg);
+}
+
+@media print {
+  body {
+    background: var(--bg);
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+    font-size: 12px;
+  }
+  .page {
+    max-width: none;
+    margin: 0;
+    padding: 16mm 18mm 14mm;
+    min-height: 297mm;
+    height: 297mm;
+    page-break-after: always;
+    break-after: page;
+    overflow: hidden;
+  }
+  .page:last-child { page-break-after: auto; break-after: auto; }
+  .eyebrow { margin-bottom: 28mm; padding-bottom: 12px; font-size: 9px; }
+
+  /* Cover compaction */
+  .cover-title { font-size: 22px; margin-bottom: 8px; }
+  .cover-lede { font-size: 12px; margin-bottom: 18mm; }
+  .hero-age { gap: 24px; margin-bottom: 18px; }
+  .hero-age .num { font-size: 128px; }
+  .hero-age .meta { padding-bottom: 14px; }
+  .hero-age .estimate { font-size: 14px; }
+  .hero-age .conf { font-size: 11px; }
+  .cover-summary { margin-top: 14mm; }
+  .summary-title { margin-bottom: 16px; }
+  .summary-cell { padding: 14px 12px 16px; }
+  .summary-cell .age-num { font-size: 32px; margin-top: 10px; }
+  .summary-cell .organ { font-size: 11px; }
+  .summary-cell .organ-en { font-size: 8px; }
+  .summary-cell .delta { font-size: 10px; margin-top: 4px; }
+
+  /* Organ-page compaction */
+  .organ-page .head { margin-bottom: 12px; }
+  .organ-page .organ-cn { font-size: 22px; }
+  .organ-page .organ-en { font-size: 10px; }
+  .organ-hero { gap: 20px; margin-bottom: 14mm; padding-left: 12px; border-left-width: 2px; }
+  .organ-hero .num { font-size: 96px; }
+  .organ-hero .meta { padding-bottom: 12px; }
+  .organ-hero .meta .delta-line { font-size: 13px; }
+  .organ-hero .meta .status { font-size: 9px; }
+  .organ-plain { font-size: 14px; line-height: 1.5; margin-bottom: 12mm; }
+  .actions { gap: 22px; }
+  .action-head { margin-bottom: 8px; padding-bottom: 8px; }
+  .action-name { font-size: 12px; }
+  .action-en { font-size: 9px; }
+  .action-count { font-size: 10px; }
+  .action-list li { font-size: 12px; padding: 5px 0 5px 18px; line-height: 1.45; }
+  .action-list li::before { top: 12px; }
+
+  /* Methodology compaction */
+  .method-block { margin-bottom: 8mm; }
+  .method-block .body { font-size: 12px; }
+  .method-block .meta { font-size: 10px; }
+
+  .page-footer {
+    position: absolute;
+    bottom: 10mm;
+    left: 18mm;
+    right: 18mm;
+    font-size: 8px;
+    padding-top: 10px;
+  }
+}
+
+@media (max-width: 720px) {
+  .page { padding: 56px 28px 56px; }
+  .hero-age .num { font-size: 128px; }
+  .organ-hero .num { font-size: 96px; }
+  .organ-page .organ-cn { font-size: 24px; }
+  .organ-plain { font-size: 16px; margin-bottom: 40px; }
+  .summary-grid { grid-template-columns: 1fr 1fr; }
+  .page-footer {
+    position: relative;
+    bottom: auto; left: auto; right: auto;
+    flex-direction: column;
+    gap: 6px;
+    align-items: flex-start;
+    margin-top: 32px;
+  }
+}
