@@ -46,7 +46,45 @@ ln -s ~/dev/bio-age ~/.codex/skills/bio-age
 echo 'export PATH="$HOME/dev/bio-age/bin:$PATH"' >> ~/.zshrc
 ```
 
-After this, asking the agent "评估生理年龄 / estimate biological age / 用 bio-age 跑一下" will trigger the skill automatically.
+## How to invoke from your agent
+
+Once installed, just **talk to your agent in natural language**. You don't need to remember any commands — the trigger words are part of the skill description, so the agent picks it up automatically.
+
+### Examples of what to say
+
+**English (any agent):**
+- "Run bio-age on my health report — it's at `~/health/2026-annual.txt`"
+- "Estimate my biological age from these lab numbers" *[paste your panel]*
+- "I want a biological age report I can share — feed in `report.txt`"
+- "Use the bio-age skill to evaluate this annual physical"
+
+**中文（任何 agent）：**
+- "用 bio-age 评估一下我的生理年龄，体检报告在 `~/Downloads/2026体检.txt`"
+- "把这份化验单丢给 bio-age 跑一下，做成可以发朋友圈的图" *[贴化验单]*
+- "盲测一下我的生理年龄，看模型反推出来准不准"
+- "出一份生理年龄报告，要 PDF 加单张分享图"
+
+### What happens
+
+The agent will:
+1. Detect the bio-age trigger and invoke the skill
+2. Run `bio-age <your-report> --runner claude --output ./out` (constructs the prompt with age scrubbed)
+3. **Read the prompt itself**, reason through your biomarkers, write the JSON answer back to `./out/raw.txt`
+4. Run `bio-age <your-report> --runner skip-llm --output ./out` (parses + renders)
+5. **Deliver to you**:
+   - `~/Downloads/bio-age-<timestamp>/social.jpg` (1 single tall image, all 7 organs)
+   - `~/Downloads/bio-age-<timestamp>/report.pdf` (9-page A4 detailed report)
+   - On Telegram / Discord (via OpenClaw): both files appear directly in chat
+
+You don't need to know about `--runner`, `--output`, file flags, or any of it. Just hand over the report and ask.
+
+### If you want to drive it manually from a shell
+
+```bash
+bio-age path/to/your-exam.txt              # default = blind mode, outputs to ./bio-age-out/
+bio-age trend t1.txt t2.txt t3.txt         # multi-timepoint comparison
+bio-age standard exam.txt --runner codex   # explicit standard mode + GPT-5.5pro
+```
 
 ## Quickstart
 
