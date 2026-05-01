@@ -11,8 +11,17 @@
 #   --html              also write HTML report (default on)
 #   --pdf               also write PDF report (default on; needs Chrome)
 #   --no-pdf            skip PDF
+#   --no-jpg            skip per-page JPG conversion
+#   --no-downloads      skip copying outputs to ~/Downloads/bio-age-<ts>/
+#   --no-manifest       skip writing .openclaw-deliver manifest
 #   --runner ARG        which LLM to call: claude (default — current session) | codex | ollama:MODEL | dryrun (just emit prompt)
 #   --json PATH         override JSON output path
+#
+# Delivery (cross-vendor):
+#   • CC / Codex / desktop CLI: outputs are copied to ~/Downloads/bio-age-<timestamp>/
+#     (find them in your Downloads folder — drag straight to chat)
+#   • OpenClaw on TG / DC:      .openclaw-deliver manifest is always written, runtime
+#     reads it to attach JPG cards + PDF directly via bot API
 #
 # Output structure under DIR:
 #   prompt.txt           — the actual prompt fed to the model (audit trail)
@@ -38,6 +47,8 @@ RUNNER="claude"
 WRITE_HTML=1
 WRITE_PDF=1
 WRITE_JPG=1
+COPY_TO_DOWNLOADS=1
+WRITE_MANIFEST=1
 INPUTS=()
 JSON_OVERRIDE=""
 
@@ -64,6 +75,8 @@ while [[ $# -gt 0 ]]; do
     --no-html) WRITE_HTML=0; shift ;;
     --jpg) WRITE_JPG=1; shift ;;
     --no-jpg) WRITE_JPG=0; shift ;;
+    --no-downloads) COPY_TO_DOWNLOADS=0; shift ;;
+    --no-manifest) WRITE_MANIFEST=0; shift ;;
     --runner) RUNNER="$2"; shift 2 ;;
     --json) JSON_OVERRIDE="$2"; shift 2 ;;
     -h|--help) usage ;;
@@ -200,6 +213,99 @@ if [[ "$WRITE_JPG" == 1 && "$WRITE_PDF" == 1 && -f "$PDF_PATH" ]]; then
   else
     echo "[bio-age] pdftoppm not found (brew install poppler) — skipping JPG conversion"
   fi
+fi
+
+
+# ─────────────── Delivery ───────────────
+# Two channels:
+#   1. ~/Downloads/bio-age-<timestamp>/  → for CC / Codex / any local CLI agent
+#   2. .openclaw-deliver manifest in OUT_DIR → for OpenClaw runtime to attach via TG/DC bot
+
+# Build the manifest (small, harmless even if no runtime reads it)
+if [[ "$WRITE_MANIFEST" == 1 ]]; then
+  python3 - "$OUT_DIR" "$JSON_PATH" <<'PYEOF'
+import json, os, sys
+from pathlib import Path
+
+out_dir = Path(sys.argv[1])
+json_path = Path(sys.argv[2])
+
+# Pull headline numbers for caption hints
+caption_summary = "生理年龄报告"
+overall = chron = None
+try:
+    d = json.loads(json_path.read_text())
+    organs = d.get("organs", {})
+    o = organs.get("overall biological age")
+    if isinstance(o, dict):  overall = o.get("age")
+    elif isinstance(o, int): overall = o
+    chron = d.get("estimated_chronological_age")
+    if overall and chron:
+        caption_summary = f"生理年龄报告 · 整体 {overall} 岁 · 反推年龄 {chron}"
+    elif overall:
+        caption_summary = f"生理年龄报告 · 整体 {overall} 岁"
+except Exception:
+    pass
+
+# Per-page caption hints (used by OpenClaw runtime if it wants per-image captions)
+ORGAN_CN = {
+    "overall biological age": "整体",
+    "cardiovascular age": "心血管",
+    "hepatic age": "肝",
+    "pulmonary age": "肺",
+    "renal age": "肾",
+    "metabolic system age": "代谢",
+    "musculoskeletal age": "肌骨",
+}
+captions = {
+    "page-1.jpg": "封面 · " + caption_summary,
+}
+try:
+    organs = json.loads(json_path.read_text()).get("organs", {})
+    keys = list(ORGAN_CN.keys())
+    for i, key in enumerate(keys, start=2):
+        cn = ORGAN_CN[key]
+        org = organs.get(key, {})
+        age = org.get("age") if isinstance(org, dict) else org
+        if age is not None:
+            captions[f"page-{i}.jpg"] = f"{cn} · {age} 岁"
+        else:
+            captions[f"page-{i}.jpg"] = cn
+    captions[f"page-{len(keys)+2}.jpg"] = "方法与出处"
+except Exception:
+    pass
+
+# Enumerate produced files
+files = []
+for f in sorted(out_dir.glob("page-*.jpg")):
+    files.append({"path": f.name, "type": "image/jpeg", "caption": captions.get(f.name, "")})
+pdf = out_dir / "report.pdf"
+if pdf.exists():
+    files.append({"path": "report.pdf", "type": "application/pdf", "caption": caption_summary})
+
+manifest = {
+    "skill": "bio-age",
+    "version": "1.2.0",
+    "summary": caption_summary,
+    "deliver_order": "images_first",   # OpenClaw runtime hint: send JPGs before PDF
+    "files": files,
+}
+(out_dir / ".openclaw-deliver").write_text(json.dumps(manifest, ensure_ascii=False, indent=2))
+print(f"[bio-age] delivery manifest → {out_dir}/.openclaw-deliver ({len(files)} files)")
+PYEOF
+fi
+
+# Copy to ~/Downloads/ for CC / Codex / any desktop-CLI runtime
+if [[ "$COPY_TO_DOWNLOADS" == 1 ]]; then
+  TS="$(date +%Y%m%d-%H%M%S)"
+  DL_DIR="$HOME/Downloads/bio-age-$TS"
+  mkdir -p "$DL_DIR"
+  cp -p "$OUT_DIR"/page-*.jpg "$DL_DIR"/ 2>/dev/null || true
+  [[ -f "$PDF_PATH" ]] && cp -p "$PDF_PATH" "$DL_DIR/" || true
+  [[ -f "$HTML_PATH" ]] && cp -p "$HTML_PATH" "$DL_DIR/" || true
+  [[ -f "$JSON_PATH" ]] && cp -p "$JSON_PATH" "$DL_DIR/" || true
+  COUNT=$(ls "$DL_DIR" 2>/dev/null | wc -l | tr -d ' ')
+  echo "[bio-age] copied $COUNT files → $DL_DIR"
 fi
 
 echo "[bio-age] done. Output dir: $OUT_DIR"

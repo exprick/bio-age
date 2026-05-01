@@ -286,15 +286,24 @@ def html_to_pdf(html_path: Path, pdf_path: Path) -> bool:
     if not chrome:
         print("[render_report] no Chrome found; skipping PDF", file=sys.stderr)
         return False
-    cmd = [
-        chrome,
-        "--headless",
-        "--disable-gpu",
-        "--no-pdf-header-footer",
-        f"--print-to-pdf={pdf_path}",
-        f"file://{html_path.resolve()}",
-    ]
-    proc = subprocess.run(cmd, capture_output=True, text=True, timeout=60)
+    # Use a temp profile dir to avoid contention with the user's running Chrome instance
+    import tempfile
+    with tempfile.TemporaryDirectory(prefix="bio-age-chrome-") as profile_dir:
+        cmd = [
+            chrome,
+            "--headless=new",
+            "--disable-gpu",
+            "--no-pdf-header-footer",
+            "--no-sandbox",
+            f"--user-data-dir={profile_dir}",
+            f"--print-to-pdf={pdf_path}",
+            f"file://{html_path.resolve()}",
+        ]
+        try:
+            proc = subprocess.run(cmd, capture_output=True, text=True, timeout=120)
+        except subprocess.TimeoutExpired:
+            print("[render_report] Chrome timed out (120s) — try again or check Chrome install", file=sys.stderr)
+            return False
     if proc.returncode != 0 and not pdf_path.exists():
         print(f"[render_report] PDF render failed: {proc.stderr}", file=sys.stderr)
         return False
