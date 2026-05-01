@@ -197,23 +197,30 @@ python3 "$SCRIPTS/parse_result.py" --mode "$MODE" --raw "$RAW_PATH" --out "$JSON
 }
 echo "[bio-age] parsed → $JSON_PATH"
 
-# Render HTML / PDF
-if [[ "$WRITE_HTML" == 1 ]]; then
-  RENDER_ARGS=(--html "$HTML_PATH")
-  [[ "$WRITE_PDF" == 1 ]] && RENDER_ARGS+=(--pdf "$PDF_PATH") || RENDER_ARGS+=(--no-pdf)
-  python3 "$SCRIPTS/render_report.py" "$JSON_PATH" "${RENDER_ARGS[@]}"
-fi
+# ── Render multi-page A4 PDF (the detailed report) ──
+SOCIAL_HTML="$OUT_DIR/social.html"
+SOCIAL_PDF="$OUT_DIR/social.pdf"
+SOCIAL_JPG="$OUT_DIR/social.jpg"
+RENDER_ARGS=(--html "$HTML_PATH" --pdf "$PDF_PATH" --social-html "$SOCIAL_HTML" --social-pdf "$SOCIAL_PDF")
+[[ "$WRITE_PDF" == 0 ]] && RENDER_ARGS=(--html "$HTML_PATH" --no-pdf)
+python3 "$SCRIPTS/render_report.py" "$JSON_PATH" "${RENDER_ARGS[@]}"
 
-# Convert PDF pages → JPG cards (for social sharing)
-if [[ "$WRITE_JPG" == 1 && "$WRITE_PDF" == 1 && -f "$PDF_PATH" ]]; then
+# ── Convert social.pdf → single social.jpg (the share-card) ──
+if [[ "$WRITE_JPG" == 1 && -f "$SOCIAL_PDF" ]]; then
   if command -v pdftoppm > /dev/null 2>&1; then
-    (cd "$OUT_DIR" && pdftoppm -jpeg -r 200 "$(basename "$PDF_PATH")" page > /dev/null 2>&1)
-    JPG_COUNT=$(ls "$OUT_DIR"/page-*.jpg 2>/dev/null | wc -l | tr -d ' ')
-    echo "[bio-age] $JPG_COUNT JPG card(s) → $OUT_DIR/page-*.jpg"
+    pdftoppm -jpeg -r 144 "$SOCIAL_PDF" "$OUT_DIR/social" > /dev/null 2>&1
+    # pdftoppm emits social-1.jpg; canonicalize to social.jpg
+    [[ -f "$OUT_DIR/social-1.jpg" ]] && mv "$OUT_DIR/social-1.jpg" "$SOCIAL_JPG"
+    if [[ -f "$SOCIAL_JPG" ]]; then
+      echo "[bio-age] social card → $SOCIAL_JPG"
+    fi
   else
-    echo "[bio-age] pdftoppm not found (brew install poppler) — skipping JPG conversion"
+    echo "[bio-age] pdftoppm not found (brew install poppler) — skipping JPG"
   fi
 fi
+
+# Drop intermediates we don't ship to user (HTML files are render-only artifacts)
+rm -f "$HTML_PATH" "$SOCIAL_HTML" 2>/dev/null || true
 
 
 # ─────────────── Delivery ───────────────
@@ -221,22 +228,20 @@ fi
 #   1. ~/Downloads/bio-age-<timestamp>/  → for CC / Codex / any local CLI agent
 #   2. .openclaw-deliver manifest in OUT_DIR → for OpenClaw runtime to attach via TG/DC bot
 
-# Build the manifest (small, harmless even if no runtime reads it)
+# Build the manifest — only what we deliver: PDF + social JPG
 if [[ "$WRITE_MANIFEST" == 1 ]]; then
   python3 - "$OUT_DIR" "$JSON_PATH" <<'PYEOF'
-import json, os, sys
+import json, sys
 from pathlib import Path
 
 out_dir = Path(sys.argv[1])
 json_path = Path(sys.argv[2])
 
-# Pull headline numbers for caption hints
 caption_summary = "生理年龄报告"
 overall = chron = None
 try:
     d = json.loads(json_path.read_text())
-    organs = d.get("organs", {})
-    o = organs.get("overall biological age")
+    o = d.get("organs", {}).get("overall biological age")
     if isinstance(o, dict):  overall = o.get("age")
     elif isinstance(o, int): overall = o
     chron = d.get("estimated_chronological_age")
@@ -247,47 +252,19 @@ try:
 except Exception:
     pass
 
-# Per-page caption hints (used by OpenClaw runtime if it wants per-image captions)
-ORGAN_CN = {
-    "overall biological age": "整体",
-    "cardiovascular age": "心血管",
-    "hepatic age": "肝",
-    "pulmonary age": "肺",
-    "renal age": "肾",
-    "metabolic system age": "代谢",
-    "musculoskeletal age": "肌骨",
-}
-captions = {
-    "page-1.jpg": "封面 · " + caption_summary,
-}
-try:
-    organs = json.loads(json_path.read_text()).get("organs", {})
-    keys = list(ORGAN_CN.keys())
-    for i, key in enumerate(keys, start=2):
-        cn = ORGAN_CN[key]
-        org = organs.get(key, {})
-        age = org.get("age") if isinstance(org, dict) else org
-        if age is not None:
-            captions[f"page-{i}.jpg"] = f"{cn} · {age} 岁"
-        else:
-            captions[f"page-{i}.jpg"] = cn
-    captions[f"page-{len(keys)+2}.jpg"] = "方法与出处"
-except Exception:
-    pass
-
-# Enumerate produced files
 files = []
-for f in sorted(out_dir.glob("page-*.jpg")):
-    files.append({"path": f.name, "type": "image/jpeg", "caption": captions.get(f.name, "")})
+social = out_dir / "social.jpg"
+if social.exists():
+    files.append({"path": "social.jpg", "type": "image/jpeg", "caption": caption_summary})
 pdf = out_dir / "report.pdf"
 if pdf.exists():
-    files.append({"path": "report.pdf", "type": "application/pdf", "caption": caption_summary})
+    files.append({"path": "report.pdf", "type": "application/pdf", "caption": "完整 PDF · " + caption_summary})
 
 manifest = {
     "skill": "bio-age",
-    "version": "1.2.0",
+    "version": "1.3.0",
     "summary": caption_summary,
-    "deliver_order": "images_first",   # OpenClaw runtime hint: send JPGs before PDF
+    "deliver_order": "images_first",
     "files": files,
 }
 (out_dir / ".openclaw-deliver").write_text(json.dumps(manifest, ensure_ascii=False, indent=2))
@@ -300,10 +277,8 @@ if [[ "$COPY_TO_DOWNLOADS" == 1 ]]; then
   TS="$(date +%Y%m%d-%H%M%S)"
   DL_DIR="$HOME/Downloads/bio-age-$TS"
   mkdir -p "$DL_DIR"
-  cp -p "$OUT_DIR"/page-*.jpg "$DL_DIR"/ 2>/dev/null || true
+  [[ -f "$SOCIAL_JPG" ]] && cp -p "$SOCIAL_JPG" "$DL_DIR/" || true
   [[ -f "$PDF_PATH" ]] && cp -p "$PDF_PATH" "$DL_DIR/" || true
-  [[ -f "$HTML_PATH" ]] && cp -p "$HTML_PATH" "$DL_DIR/" || true
-  [[ -f "$JSON_PATH" ]] && cp -p "$JSON_PATH" "$DL_DIR/" || true
   COUNT=$(ls "$DL_DIR" 2>/dev/null | wc -l | tr -d ' ')
   echo "[bio-age] copied $COUNT files → $DL_DIR"
 fi

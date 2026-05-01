@@ -1,513 +1,642 @@
-/* bio-age — modern editorial design.
- * One organ = one page = one shareable JPG. Type-driven, generous whitespace, minimal color.
- * Hero numbers carry the entire visual weight. Status conveyed by left-edge accent + text color.
+/* bio-age design system — mono+sans editorial, zero hue, density via type.
+ * Tokens lifted from the bio-age design system spec (sourced from prior v3 web report).
  */
 
 :root {
-  /* canvas */
-  --bg:           #fafaf7;
-  --surface:      #ffffff;
-  --hairline:     #ebe9e3;
-  --rule:         #d8d5cc;
+  /* color — pure mono, no hue */
+  --ink:        #0a0a0a;
+  --ink-2:      #1a1a1a;
+  --mute-1:     #3d3d3d;
+  --mute-2:     #6b6b6b;
+  --mute-3:     #9a9a9a;
+  --mute-4:     #c8c8c8;
+  --line:       #e5e5e5;
+  --line-2:     #efefef;
+  --paper:      #fafaf9;
+  --paper-2:    #f4f4f2;
+  --white:      #ffffff;
 
-  /* text */
-  --ink:          #0a0a0a;
-  --ink-soft:     #2a2a2a;
-  --muted:        #6b6b6b;
-  --faint:        #9d9d9d;
-  --whisper:      #c4c4c4;
+  /* type */
+  --sans: "Inter", "Noto Sans SC", -apple-system, BlinkMacSystemFont,
+          "Helvetica Neue", "PingFang SC", "Hiragino Sans GB", sans-serif;
+  --mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
 
-  /* accents */
-  --accent:       #1a3a5c;     /* deep navy, used sparingly */
-  --young:        #1f6b44;     /* deep emerald */
-  --young-tint:   #ecf3ee;
-  --aging:        #8a5a1a;     /* warm bronze */
-  --aging-tint:   #f3ebd9;
-  --elderly:      #a02a3a;     /* deep crimson */
-  --elderly-tint: #f1e1e1;
-  --neutral-tint: #f0f0eb;
-
-  --display-stack: "Inter Display", "Inter", "Söhne", "Helvetica Neue",
-                   "PingFang SC", "Hiragino Sans GB", system-ui, sans-serif;
-  --text-stack:   "Inter", "Söhne", "Helvetica Neue",
-                  "PingFang SC", "Hiragino Sans GB", system-ui, sans-serif;
-  --mono-stack:   "JetBrains Mono", "SF Mono", Consolas, Monaco, monospace;
+  /* spacing */
+  --u: 4px;
+  --gutter: 32px;
 }
 
 * { box-sizing: border-box; }
 html, body { margin: 0; padding: 0; }
 
 body {
-  background: var(--bg);
+  background: var(--paper);
   color: var(--ink);
-  font-family: var(--text-stack);
-  font-size: 15px;
-  line-height: 1.6;
+  font-family: var(--sans);
+  font-size: 14px;
+  line-height: 1.55;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   font-feature-settings: "ss01", "cv11";
+  letter-spacing: -0.005em;
 }
 
-/* ─────────────── Page wrapper (one per section) ─────────────── */
+.mono {
+  font-family: var(--mono);
+  font-feature-settings: "zero", "ss01";
+  font-variant-numeric: tabular-nums;
+}
+
+/* ─────────────── A4 multi-page layout (PDF) ─────────────── */
 .page {
   max-width: 720px;
   margin: 0 auto;
-  padding: 96px 64px 88px;
+  padding: 64px 56px 80px;
   page-break-after: always;
   break-after: page;
   position: relative;
-  min-height: calc(100vh - 0px);
+  min-height: 100vh;
 }
 .page:last-child { page-break-after: auto; break-after: auto; }
 
-/* ─────────────── Eyebrow + meta line at top of every page ─────────────── */
+/* Eyebrow — mono caps band atop every page */
 .eyebrow {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  font-family: var(--text-stack);
+  font-family: var(--mono);
   font-size: 11px;
-  font-weight: 500;
-  letter-spacing: 0.16em;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: var(--muted);
-  margin: 0 0 80px;
-  padding-bottom: 20px;
-  border-bottom: 1px solid var(--hairline);
+  color: var(--mute-2);
+  border-top: 1px solid var(--ink);
+  border-bottom: 1px solid var(--line);
+  padding: 12px 0 12px;
+  margin: 0 0 64px;
 }
-.eyebrow .left,
-.eyebrow .right { display: inline-flex; gap: 16px; align-items: center; }
-.eyebrow .index { color: var(--ink); font-weight: 600; }
+.eyebrow .left, .eyebrow .right {
+  display: inline-flex; gap: 14px; align-items: center;
+}
+.eyebrow .index {
+  color: var(--ink); font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
 
-/* ─────────────── Cover page ─────────────── */
+/* Cover / methodology titles */
 .cover-title {
-  font-family: var(--display-stack);
+  font-family: var(--sans);
+  font-size: 48px;
   font-weight: 500;
-  font-size: 28px;
-  line-height: 1.15;
-  letter-spacing: -0.01em;
+  line-height: 1.05;
+  letter-spacing: -0.02em;
   color: var(--ink);
   margin: 0 0 12px;
 }
 .cover-lede {
-  font-family: var(--text-stack);
-  font-size: 15px;
-  line-height: 1.55;
-  color: var(--muted);
-  margin: 0 0 96px;
-  max-width: 480px;
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--mute-1);
+  margin: 0 0 64px;
+  max-width: 60ch;
 }
 
+/* Hero number block (cover) — single huge number, mono-tabular */
 .hero-age {
-  display: flex;
-  align-items: flex-end;
+  display: grid;
+  grid-template-columns: auto 1fr;
   gap: 32px;
-  margin: 0 0 24px;
+  align-items: end;
+  border-top: 1px solid var(--ink);
+  border-bottom: 1px solid var(--ink);
+  padding: 32px 0;
+  margin: 0 0 64px;
 }
 .hero-age .num {
-  font-family: var(--display-stack);
-  font-weight: 200;
-  font-size: 184px;
+  font-family: var(--sans);
+  font-size: 144px;
+  font-weight: 500;
   line-height: 0.9;
-  letter-spacing: -0.06em;
+  letter-spacing: -0.04em;
   color: var(--ink);
-  font-feature-settings: "tnum", "ss01";
   font-variant-numeric: tabular-nums;
 }
-.hero-age .meta {
-  padding-bottom: 20px;
-  flex: 1;
-}
+.hero-age .meta { padding-bottom: 12px; }
 .hero-age .label {
+  font-family: var(--mono);
   font-size: 11px;
-  font-weight: 500;
-  letter-spacing: 0.16em;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: var(--muted);
-  margin: 0 0 6px;
+  color: var(--mute-2);
+  margin: 0 0 8px;
 }
 .hero-age .estimate {
-  font-family: var(--display-stack);
-  font-size: 17px;
+  font-family: var(--sans);
+  font-size: 18px;
   font-weight: 500;
-  color: var(--ink-soft);
-  margin: 0;
+  color: var(--ink);
+  margin: 0 0 6px;
+  letter-spacing: -0.01em;
 }
 .hero-age .conf {
-  font-size: 13px;
-  font-weight: 400;
-  color: var(--muted);
+  font-family: var(--sans);
+  font-size: 12px;
   line-height: 1.55;
-  margin: 8px 0 0;
-  max-width: 320px;
+  color: var(--mute-1);
+  margin: 4px 0 0;
+  max-width: 56ch;
 }
 
-.cover-summary {
-  margin: 96px 0 0;
-}
+/* Cover summary grid (7 organs) */
+.cover-summary { margin: 0 0 32px; }
 .summary-title {
+  font-family: var(--mono);
   font-size: 11px;
-  font-weight: 500;
-  letter-spacing: 0.16em;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: var(--muted);
-  margin: 0 0 24px;
+  color: var(--mute-2);
+  border-top: 1px solid var(--ink);
+  padding: 12px 0 16px;
+  margin: 0;
 }
 .summary-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 1px;
-  background: var(--hairline);
-  border: 1px solid var(--hairline);
+  gap: 0;
+  border-top: 1px solid var(--line);
+  border-left: 1px solid var(--line);
 }
 .summary-cell {
-  background: var(--surface);
-  padding: 22px 18px 24px;
-  position: relative;
+  border-right: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+  padding: 18px 16px 18px;
 }
 .summary-cell .organ {
-  font-family: var(--text-stack);
-  font-size: 12px;
+  font-family: var(--sans);
+  font-size: 13px;
   font-weight: 500;
-  color: var(--ink-soft);
-  margin: 0 0 4px;
-  letter-spacing: 0.02em;
+  color: var(--ink);
+  margin: 0 0 2px;
 }
 .summary-cell .organ-en {
   display: block;
+  font-family: var(--mono);
   font-size: 9px;
   font-weight: 500;
-  letter-spacing: 0.18em;
+  letter-spacing: 0.10em;
   text-transform: uppercase;
-  color: var(--whisper);
+  color: var(--mute-3);
   margin-top: 2px;
 }
 .summary-cell .age-num {
-  font-family: var(--display-stack);
-  font-weight: 300;
-  font-size: 44px;
+  font-family: var(--sans);
+  font-size: 36px;
+  font-weight: 500;
   line-height: 1;
-  letter-spacing: -0.04em;
+  letter-spacing: -0.02em;
   color: var(--ink);
   font-variant-numeric: tabular-nums;
-  margin-top: 14px;
+  margin: 14px 0 0;
 }
 .summary-cell .delta {
+  font-family: var(--mono);
   font-size: 11px;
-  font-weight: 500;
-  color: var(--muted);
-  margin-top: 6px;
-  letter-spacing: 0.02em;
+  color: var(--mute-2);
+  margin: 6px 0 0;
+  letter-spacing: 0;
+  font-variant-numeric: tabular-nums;
 }
-.summary-cell.young .age-num,
-.summary-cell.young .delta { color: var(--young); }
-.summary-cell.aging .age-num,
-.summary-cell.aging .delta { color: var(--aging); }
-.summary-cell.elderly .age-num,
-.summary-cell.elderly .delta { color: var(--elderly); }
 
-/* ─────────────── Organ detail page ─────────────── */
+/* Organ detail page */
 .organ-page .head {
   display: flex;
   align-items: baseline;
   gap: 16px;
-  margin: 0 0 18px;
+  margin: 0 0 14px;
 }
 .organ-page .organ-cn {
-  font-family: var(--display-stack);
+  font-family: var(--sans);
+  font-size: 32px;
   font-weight: 500;
-  font-size: 30px;
-  line-height: 1.1;
-  letter-spacing: -0.005em;
+  line-height: 1.15;
+  letter-spacing: -0.015em;
   color: var(--ink);
   margin: 0;
 }
 .organ-page .organ-en {
-  font-family: var(--text-stack);
+  font-family: var(--mono);
   font-size: 11px;
   font-weight: 500;
-  letter-spacing: 0.18em;
+  letter-spacing: 0.10em;
   text-transform: uppercase;
-  color: var(--whisper);
+  color: var(--mute-3);
   margin: 0;
 }
-
 .organ-hero {
-  display: flex;
-  align-items: flex-end;
+  display: grid;
+  grid-template-columns: auto 1fr;
   gap: 28px;
-  margin: 0 0 56px;
-  padding: 0 0 0 16px;
-  border-left: 3px solid var(--ink);
+  align-items: end;
+  border-top: 1px solid var(--ink);
+  border-bottom: 1px solid var(--ink);
+  padding: 24px 0;
+  margin: 0 0 40px;
 }
-.organ-page.young .organ-hero    { border-left-color: var(--young); }
-.organ-page.aging .organ-hero    { border-left-color: var(--aging); }
-.organ-page.elderly .organ-hero  { border-left-color: var(--elderly); }
-
 .organ-hero .num {
-  font-family: var(--display-stack);
-  font-weight: 200;
-  font-size: 144px;
+  font-family: var(--sans);
+  font-size: 120px;
+  font-weight: 500;
   line-height: 0.92;
-  letter-spacing: -0.05em;
+  letter-spacing: -0.04em;
   color: var(--ink);
   font-variant-numeric: tabular-nums;
 }
-.organ-page.young .organ-hero .num   { color: var(--young); }
-.organ-page.aging .organ-hero .num   { color: var(--aging); }
-.organ-page.elderly .organ-hero .num { color: var(--elderly); }
-
-.organ-hero .meta {
-  padding-bottom: 18px;
-  flex: 1;
-}
+.organ-hero .meta { padding-bottom: 12px; }
 .organ-hero .meta .delta-line {
-  font-family: var(--display-stack);
-  font-size: 16px;
+  font-family: var(--mono);
+  font-size: 13px;
   font-weight: 500;
-  color: var(--muted);
+  color: var(--mute-1);
   margin: 0 0 6px;
+  letter-spacing: 0;
 }
 .organ-hero .meta .delta-line .delta-num {
   color: var(--ink);
-  font-feature-settings: "tnum";
+  font-weight: 600;
 }
-.organ-page.young .organ-hero .meta .delta-line .delta-num { color: var(--young); }
-.organ-page.aging .organ-hero .meta .delta-line .delta-num { color: var(--aging); }
-.organ-page.elderly .organ-hero .meta .delta-line .delta-num { color: var(--elderly); }
-
 .organ-hero .meta .status {
+  font-family: var(--mono);
   font-size: 11px;
-  font-weight: 500;
-  letter-spacing: 0.16em;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: var(--muted);
+  color: var(--mute-2);
   margin: 0;
 }
 
-/* ─────────────── Plain language paragraph ─────────────── */
 .organ-plain {
-  font-family: var(--text-stack);
-  font-size: 19px;
+  font-family: var(--sans);
+  font-size: 18px;
   font-weight: 400;
   line-height: 1.55;
-  color: var(--ink-soft);
   letter-spacing: -0.005em;
-  margin: 0 0 64px;
-  max-width: 600px;
+  color: var(--ink-2);
+  margin: 0 0 56px;
+  max-width: 60ch;
 }
 
-/* ─────────────── Intervention sections ─────────────── */
+/* Action groups (止损 / 改善 / 探索) */
 .actions {
   display: grid;
   grid-template-columns: 1fr;
-  gap: 40px;
+  gap: 0;
+  border-top: 1px solid var(--ink);
 }
-
 .action-group {
-  position: relative;
+  border-bottom: 1px solid var(--line);
+  padding: 18px 0 18px;
 }
 .action-head {
   display: flex;
   align-items: baseline;
   gap: 12px;
-  padding: 0 0 12px;
-  margin: 0 0 14px;
-  border-bottom: 1px solid var(--hairline);
+  margin: 0 0 12px;
 }
 .action-name {
-  font-family: var(--display-stack);
-  font-size: 13px;
+  font-family: var(--sans);
+  font-size: 16px;
   font-weight: 600;
-  letter-spacing: 0.04em;
+  letter-spacing: -0.005em;
   color: var(--ink);
 }
 .action-en {
+  font-family: var(--mono);
   font-size: 10px;
-  font-weight: 500;
-  letter-spacing: 0.2em;
+  letter-spacing: 0.10em;
   text-transform: uppercase;
-  color: var(--whisper);
+  color: var(--mute-3);
 }
 .action-count {
   margin-left: auto;
-  font-family: var(--mono-stack);
+  font-family: var(--mono);
   font-size: 11px;
   font-weight: 500;
-  color: var(--faint);
-  letter-spacing: 0.02em;
+  color: var(--mute-2);
+  letter-spacing: 0;
+  font-variant-numeric: tabular-nums;
 }
-
 .action-list {
   list-style: none;
   padding: 0;
   margin: 0;
 }
 .action-list li {
-  font-family: var(--text-stack);
-  font-size: 14px;
+  font-family: var(--sans);
+  font-size: 13px;
   font-weight: 400;
   line-height: 1.55;
-  color: var(--ink-soft);
-  padding: 8px 0 8px 22px;
+  color: var(--ink-2);
+  padding: 7px 0 7px 20px;
   position: relative;
+  border-bottom: 1px dashed var(--line);
 }
+.action-list li:last-child { border-bottom: 0; }
 .action-list li::before {
-  content: "";
+  content: "—";
   position: absolute;
-  left: 4px;
-  top: 16px;
-  width: 8px;
-  height: 1px;
-  background: var(--whisper);
-}
-.action-list li:not(:last-child) {
-  border-bottom: 1px solid var(--hairline);
+  left: 0;
+  top: 7px;
+  font-family: var(--mono);
+  color: var(--mute-3);
 }
 
-/* ─────────────── Methodology page ─────────────── */
-.method-block { margin: 0 0 48px; }
+/* Methodology page */
+.method-block { margin: 0 0 32px; }
 .method-block .label {
+  font-family: var(--mono);
   font-size: 10px;
-  font-weight: 500;
-  letter-spacing: 0.18em;
+  letter-spacing: 0.10em;
   text-transform: uppercase;
-  color: var(--whisper);
-  margin: 0 0 8px;
+  color: var(--mute-3);
+  margin: 0 0 10px;
+  border-top: 1px solid var(--line);
+  padding-top: 10px;
 }
 .method-block .body {
-  font-family: var(--text-stack);
-  font-size: 14px;
+  font-family: var(--sans);
+  font-size: 13px;
   line-height: 1.65;
-  color: var(--ink-soft);
+  color: var(--ink-2);
   margin: 0 0 6px;
-  max-width: 580px;
+  max-width: 60ch;
 }
 .method-block .body a {
-  color: var(--accent);
+  color: var(--ink);
   text-decoration: none;
-  border-bottom: 1px solid var(--hairline);
+  border-bottom: 1px solid var(--mute-3);
 }
+.method-block .body a:hover { border-bottom-color: var(--ink); }
 .method-block .meta {
-  font-family: var(--mono-stack);
+  font-family: var(--mono);
   font-size: 11px;
-  color: var(--muted);
-  letter-spacing: 0.02em;
-  margin: 0;
+  color: var(--mute-2);
+  letter-spacing: 0;
+  margin: 2px 0 0;
 }
 
-/* ─────────────── Page footer (every page bottom) ─────────────── */
+/* Page footer (every PDF page bottom) */
 .page-footer {
   position: absolute;
-  bottom: 48px;
-  left: 64px;
-  right: 64px;
+  bottom: 32px;
+  left: 56px;
+  right: 56px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  font-family: var(--mono-stack);
+  font-family: var(--mono);
   font-size: 10px;
   letter-spacing: 0.04em;
-  color: var(--whisper);
-  padding-top: 16px;
-  border-top: 1px solid var(--hairline);
+  color: var(--mute-3);
+  border-top: 1px solid var(--line);
+  padding-top: 14px;
 }
-.page-footer .left,
-.page-footer .right { display: inline-flex; gap: 14px; align-items: center; }
+.page-footer .left, .page-footer .right {
+  display: inline-flex; gap: 12px; align-items: center;
+}
 .page-footer a {
-  color: var(--muted);
+  color: var(--mute-2);
   text-decoration: none;
 }
 
-/* ─────────────── Print rules ─────────────── */
+/* ─────────────── Print rules (A4 multi-page PDF) ─────────────── */
 @page {
   size: A4;
   margin: 0;
-  background: var(--bg);
+  background: var(--paper);
 }
 
 @media print {
   body {
-    background: var(--bg);
+    background: var(--paper);
     -webkit-print-color-adjust: exact;
     print-color-adjust: exact;
-    font-size: 12px;
+    font-size: 11px;
   }
   .page {
     max-width: none;
     margin: 0;
-    padding: 16mm 18mm 14mm;
+    padding: 18mm 18mm 16mm;
     min-height: 297mm;
     height: 297mm;
-    page-break-after: always;
-    break-after: page;
     overflow: hidden;
   }
-  .page:last-child { page-break-after: auto; break-after: auto; }
-  .eyebrow { margin-bottom: 28mm; padding-bottom: 12px; font-size: 9px; }
-
-  /* Cover compaction */
-  .cover-title { font-size: 22px; margin-bottom: 8px; }
-  .cover-lede { font-size: 12px; margin-bottom: 18mm; }
-  .hero-age { gap: 24px; margin-bottom: 18px; }
-  .hero-age .num { font-size: 128px; }
-  .hero-age .meta { padding-bottom: 14px; }
+  .eyebrow { margin-bottom: 22mm; padding: 8px 0; font-size: 9px; }
+  .cover-title { font-size: 32px; margin-bottom: 8px; }
+  .cover-lede { font-size: 11px; margin-bottom: 12mm; max-width: 100%; }
+  .hero-age { padding: 20px 0; margin-bottom: 14mm; }
+  .hero-age .num { font-size: 110px; }
   .hero-age .estimate { font-size: 14px; }
-  .hero-age .conf { font-size: 11px; }
-  .cover-summary { margin-top: 14mm; }
-  .summary-title { margin-bottom: 16px; }
-  .summary-cell { padding: 14px 12px 16px; }
-  .summary-cell .age-num { font-size: 32px; margin-top: 10px; }
+  .hero-age .conf { font-size: 10px; }
+  .summary-title { padding: 8px 0 12px; }
+  .summary-cell { padding: 12px 11px 14px; }
   .summary-cell .organ { font-size: 11px; }
-  .summary-cell .organ-en { font-size: 8px; }
-  .summary-cell .delta { font-size: 10px; margin-top: 4px; }
-
-  /* Organ-page compaction */
-  .organ-page .head { margin-bottom: 12px; }
-  .organ-page .organ-cn { font-size: 22px; }
-  .organ-page .organ-en { font-size: 10px; }
-  .organ-hero { gap: 20px; margin-bottom: 14mm; padding-left: 12px; border-left-width: 2px; }
+  .summary-cell .age-num { font-size: 28px; margin-top: 10px; }
+  .summary-cell .delta { font-size: 10px; }
+  .organ-page .organ-cn { font-size: 24px; }
+  .organ-hero { padding: 18px 0; margin-bottom: 12mm; }
   .organ-hero .num { font-size: 96px; }
-  .organ-hero .meta { padding-bottom: 12px; }
-  .organ-hero .meta .delta-line { font-size: 13px; }
-  .organ-hero .meta .status { font-size: 9px; }
-  .organ-plain { font-size: 14px; line-height: 1.5; margin-bottom: 12mm; }
-  .actions { gap: 22px; }
-  .action-head { margin-bottom: 8px; padding-bottom: 8px; }
-  .action-name { font-size: 12px; }
-  .action-en { font-size: 9px; }
-  .action-count { font-size: 10px; }
-  .action-list li { font-size: 12px; padding: 5px 0 5px 18px; line-height: 1.45; }
-  .action-list li::before { top: 12px; }
-
-  /* Methodology compaction */
-  .method-block { margin-bottom: 8mm; }
-  .method-block .body { font-size: 12px; }
-  .method-block .meta { font-size: 10px; }
-
+  .organ-plain { font-size: 14px; line-height: 1.5; margin-bottom: 10mm; }
+  .action-group { padding: 12px 0; }
+  .action-list li { font-size: 11px; padding: 5px 0 5px 16px; line-height: 1.45; }
+  .action-list li::before { top: 5px; }
+  .method-block .body { font-size: 11px; }
   .page-footer {
-    position: absolute;
     bottom: 10mm;
     left: 18mm;
     right: 18mm;
     font-size: 8px;
     padding-top: 10px;
   }
+  .page, .organ-hero, table, .summary-grid { break-inside: avoid; page-break-inside: avoid; }
 }
 
-@media (max-width: 720px) {
-  .page { padding: 56px 28px 56px; }
-  .hero-age .num { font-size: 128px; }
-  .organ-hero .num { font-size: 96px; }
-  .organ-page .organ-cn { font-size: 24px; }
-  .organ-plain { font-size: 16px; margin-bottom: 40px; }
-  .summary-grid { grid-template-columns: 1fr 1fr; }
-  .page-footer {
-    position: relative;
-    bottom: auto; left: auto; right: auto;
-    flex-direction: column;
-    gap: 6px;
-    align-items: flex-start;
-    margin-top: 32px;
-  }
+/* ─────────────── Social card (single tall 1080-wide JPG) ─────────────── */
+body.social-card {
+  background: var(--paper);
+  font-size: 16px;
 }
+.social {
+  width: 1080px;
+  margin: 0 auto;
+  padding: 64px 72px 64px;
+}
+
+.social .top {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  font-family: var(--mono);
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--mute-2);
+  border-top: 2px solid var(--ink);
+  border-bottom: 1px solid var(--line);
+  padding: 14px 0;
+  margin: 0 0 56px;
+}
+.social .top .brand { color: var(--ink); font-weight: 600; }
+
+.social .hero {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 48px;
+  align-items: end;
+  border-bottom: 1px solid var(--ink);
+  padding-bottom: 40px;
+  margin-bottom: 48px;
+}
+.social .hero .num {
+  font-family: var(--sans);
+  font-size: 240px;
+  font-weight: 500;
+  line-height: 0.85;
+  letter-spacing: -0.05em;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+}
+.social .hero .meta { padding-bottom: 18px; }
+.social .hero .label {
+  font-family: var(--mono);
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--mute-2);
+  margin: 0 0 12px;
+}
+.social .hero .estimate {
+  font-family: var(--sans);
+  font-size: 28px;
+  font-weight: 500;
+  color: var(--ink);
+  margin: 0 0 8px;
+  letter-spacing: -0.01em;
+}
+.social .hero .conf {
+  font-family: var(--sans);
+  font-size: 14px;
+  line-height: 1.55;
+  color: var(--mute-1);
+  margin: 0;
+  max-width: 50ch;
+}
+
+.social .organ-row {
+  display: grid;
+  grid-template-columns: 96px 1fr 120px;
+  gap: 32px;
+  align-items: center;
+  border-bottom: 1px solid var(--line);
+  padding: 22px 0;
+}
+.social .organ-row:first-of-type { border-top: 1px solid var(--ink); }
+.social .organ-row .organ-num {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  color: var(--mute-3);
+  text-transform: uppercase;
+}
+.social .organ-row .body { min-width: 0; }
+.social .organ-row .organ-name {
+  display: flex;
+  align-items: baseline;
+  gap: 14px;
+  margin: 0 0 6px;
+}
+.social .organ-row .organ-cn {
+  font-family: var(--sans);
+  font-size: 22px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: var(--ink);
+}
+.social .organ-row .organ-en {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.10em;
+  text-transform: uppercase;
+  color: var(--mute-3);
+}
+.social .organ-row .status {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  color: var(--mute-2);
+  margin-left: auto;
+}
+.social .organ-row .plain {
+  font-family: var(--sans);
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--ink-2);
+  margin: 0;
+  max-width: 60ch;
+}
+.social .organ-row .age-block {
+  text-align: right;
+}
+.social .organ-row .age-num {
+  font-family: var(--sans);
+  font-size: 56px;
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: -0.03em;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+}
+.social .organ-row .age-delta {
+  font-family: var(--mono);
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--mute-1);
+  margin: 6px 0 0;
+  font-variant-numeric: tabular-nums;
+}
+
+.social .footer {
+  margin-top: 56px;
+  padding-top: 16px;
+  border-top: 1px solid var(--ink);
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 32px;
+  align-items: end;
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--mute-2);
+  letter-spacing: 0.02em;
+}
+.social .footer .left p { margin: 0 0 4px; }
+.social .footer .left strong {
+  color: var(--ink);
+  font-weight: 600;
+  letter-spacing: 0;
+}
+.social .footer .left a {
+  color: var(--ink);
+  text-decoration: none;
+  border-bottom: 1px solid var(--mute-3);
+}
+.social .footer .right {
+  font-size: 9px;
+  letter-spacing: 0.10em;
+  text-transform: uppercase;
+  color: var(--mute-3);
+  text-align: right;
+}
+
+/* Custom @page for social card (used when rendering the social-card HTML to PDF) */
+@page social-page {
+  size: 1080px 2400px;
+  margin: 0;
+}
+body.social-card { page: social-page; }

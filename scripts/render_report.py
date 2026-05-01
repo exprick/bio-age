@@ -295,6 +295,7 @@ def html_to_pdf(html_path: Path, pdf_path: Path) -> bool:
             "--disable-gpu",
             "--no-pdf-header-footer",
             "--no-sandbox",
+            "--single-process",      # avoid zombie GPU/renderer subprocesses
             f"--user-data-dir={profile_dir}",
             f"--print-to-pdf={pdf_path}",
             f"file://{html_path.resolve()}",
@@ -310,11 +311,91 @@ def html_to_pdf(html_path: Path, pdf_path: Path) -> bool:
     return True
 
 
+def build_social_html(data: dict, css: str) -> str:
+    """Compact 1080-wide single-page social card — all 7 organs in one tall image."""
+    chron   = data.get("estimated_chronological_age")
+    conf    = data.get("chronological_age_confidence", "")
+    organs  = data.get("organs", {})
+    overall = organs.get("overall biological age", {}).get("age")
+    today   = _dt.datetime.now().strftime("%Y-%m-%d")
+
+    rows = []
+    for i, (key, cn, en) in enumerate(ORGAN_ORDER, start=1):
+        organ = organs.get(key, {})
+        age = organ.get("age")
+        plain = organ.get("plain", "") or ""
+        cls = status_class(age, chron) if chron else "neutral"
+        label = status_label(age, chron) if chron else ""
+        delta = fmt_delta(age, chron) if chron else "—"
+        rows.append(f"""<div class="organ-row {cls}">
+  <div class="organ-num">0{i} / 07</div>
+  <div class="body">
+    <div class="organ-name">
+      <span class="organ-cn">{html_mod.escape(cn)}</span>
+      <span class="organ-en">{html_mod.escape(en)}</span>
+      <span class="status">{label}</span>
+    </div>
+    <p class="plain">{html_mod.escape(plain)}</p>
+  </div>
+  <div class="age-block">
+    <div class="age-num">{age if age is not None else '—'}</div>
+    <div class="age-delta">{delta}</div>
+  </div>
+</div>""")
+
+    body = f"""<div class="social">
+  <div class="top">
+    <span class="brand">bio-age · 生理年龄报告</span>
+    <span>{today}</span>
+  </div>
+
+  <div class="hero">
+    <div class="num">{overall if overall is not None else '—'}</div>
+    <div class="meta">
+      <p class="label">整体生理年龄 · OVERALL</p>
+      <p class="estimate">反推年龄 {chron if chron else '—'} 岁</p>
+      <p class="conf">{html_mod.escape(conf)}</p>
+    </div>
+  </div>
+
+  {''.join(rows)}
+
+  <div class="footer">
+    <div class="left">
+      <p><strong>方法</strong> · Sun et al. (2025) <em>A large language model approach for biological age estimation and aging intervention.</em> Nature Medicine</p>
+      <p><strong>Skill</strong> · <a href="https://{REPO_URL}">{REPO_URL}</a> · MIT</p>
+      <p>Blind 模式：模型不知道实际年龄，纯靠生物标志物推断 7 器官年龄 + 反猜年龄。</p>
+    </div>
+    <div class="right">
+      仅供研究参考<br>非医疗诊断
+    </div>
+  </div>
+</div>"""
+
+    return f"""<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=1080,initial-scale=1">
+<title>bio-age · social card</title>
+<style>
+{css}
+</style>
+</head>
+<body class="social-card">
+{body}
+</body>
+</html>
+"""
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("input", nargs="?", default="-")
     ap.add_argument("--html", default="./bio-age-report.html")
     ap.add_argument("--pdf", default=None)
+    ap.add_argument("--social-html", default=None, help="optional: write single-page social card HTML to this path")
+    ap.add_argument("--social-pdf", default=None, help="optional: render social card to a single-page tall PDF")
     ap.add_argument("--css", default=str(DEFAULT_CSS))
     ap.add_argument("--no-pdf", action="store_true")
     args = ap.parse_args()
@@ -329,6 +410,8 @@ def main():
     data.setdefault("model", "Claude (current session)")
 
     css = Path(args.css).read_text() if Path(args.css).exists() else ""
+
+    # 1) Multi-page report (PDF source)
     html = build_html(data, css)
     html_path = Path(args.html).resolve()
     html_path.parent.mkdir(parents=True, exist_ok=True)
@@ -340,6 +423,66 @@ def main():
         ok = html_to_pdf(html_path, pdf_path)
         if ok:
             print(f"[render_report] PDF → {pdf_path}")
+
+    # 2) Social card (single tall page → PDF → JPG)
+    if args.social_html or args.social_pdf:
+        sh = build_social_html(data, css)
+        social_html_path = Path(args.social_html) if args.social_html else html_path.with_name("social.html")
+        social_html_path.write_text(sh)
+        print(f"[render_report] social HTML → {social_html_path} ({len(sh)} chars)")
+        if args.social_pdf:
+            social_pdf_path = Path(args.social_pdf)
+            ok = html_to_pdf_custom(social_html_path, social_pdf_path, page_size="1080px 2400px")
+            if ok:
+                print(f"[render_report] social PDF → {social_pdf_path}")
+
+
+def html_to_pdf_custom(html_path: Path, pdf_path: Path, page_size: str = "1080px 2400px") -> bool:
+    """Render HTML to a single-page PDF with custom page size (for social card)."""
+    chrome_candidates = [
+        "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
+        "/Applications/Brave Browser.app/Contents/MacOS/Brave Browser",
+        "/usr/bin/google-chrome",
+        "google-chrome",
+        "chromium",
+    ]
+    chrome = next((c for c in chrome_candidates if Path(c).exists() or shutil.which(c)), None)
+    if not chrome:
+        print("[render_report] no Chrome found; skipping social PDF", file=sys.stderr)
+        return False
+
+    # Inject @page rule with the custom size into the HTML's existing <style>
+    import tempfile
+    html_text = html_path.read_text()
+    width_str, height_str = page_size.split()
+    width_px = int(width_str.rstrip("px"))
+    height_px = int(height_str.rstrip("px"))
+    width_in = width_px / 96.0    # CSS px → inches @ 96 dpi
+    height_in = height_px / 96.0
+
+    with tempfile.TemporaryDirectory(prefix="bio-age-chrome-") as profile_dir:
+        cmd = [
+            chrome,
+            "--headless=new",
+            "--disable-gpu",
+            "--no-pdf-header-footer",
+            "--no-sandbox",
+            "--single-process",      # avoid zombie GPU/renderer subprocesses
+            f"--user-data-dir={profile_dir}",
+            f"--print-to-pdf={pdf_path}",
+            f"--virtual-time-budget=2000",
+            f"--window-size={width_px},{height_px}",
+            f"file://{html_path.resolve()}",
+        ]
+        try:
+            proc = subprocess.run(cmd, capture_output=True, text=True, timeout=60)
+        except subprocess.TimeoutExpired:
+            print("[render_report] Chrome timed out (social card)", file=sys.stderr)
+            return False
+    if proc.returncode != 0 and not pdf_path.exists():
+        print(f"[render_report] social PDF failed: {proc.stderr}", file=sys.stderr)
+        return False
+    return True
 
 
 if __name__ == "__main__":
