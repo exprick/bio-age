@@ -1,0 +1,35 @@
+{
+  "alert_id": "bio-age-cloudflare-route-missing-2026-05-05T15-14-37-a5c9f176",
+  "ts": "2026-05-05T15:14:37+09:00",
+  "project": "bio-age",
+  "pattern": "cloudflare-route-missing",
+  "severity_initial": "cleanup",
+  "severity_final": "cleanup",
+  "raw": {
+    "message": "🌐 **`bio-age.exp.game`** （项目 `bio-age`）子域名没在 cloudflare config 里（路由从未配）\n   👉 *根因*：~/.cloudflared/config.yml 里没 `hostname: bio-age.exp.game` 这一行\n   👉 *建议*：要这个 URL → `~/dev/exp-deploy/route-mgr.sh add bio-age 3206`；不要这个 URL → 把 registry 里 bio-age 的 `subdomain` 设成空",
+    "meta": null,
+    "pattern": "cloudflare-route-missing",
+    "project": "bio-age"
+  },
+  "message": "🌐 **`bio-age.exp.game`** （项目 `bio-age`）子域名没在 cloudflare config 里（路由从未配）\n   👉 *根因*：~/.cloudflared/config.yml 里没 `hostname: bio-age.exp.game` 这一行\n   👉 *建议*：要这个 URL → `~/dev/exp-deploy/route-mgr.sh add bio-age 3206`；不要这个 URL → 把 registry 里 bio-age 的 `subdomain` 设成空",
+  "detail": "",
+  "diagnosis": {
+    "verify_cmd": "",
+    "exit": 0,
+    "stdout": "",
+    "stderr": "",
+    "duration_ms": 0,
+    "classification": "emitted",
+    "evidence": []
+  },
+  "discord_posted": false,
+  "discord_message_id": null,
+  "rick_resolution": null,
+  "meta": {
+    "dedupe_key": "a5c9f176",
+    "dedupe_source": "raw-json"
+  },
+  "self_fix": {
+    "attempted": false
+  }
+}

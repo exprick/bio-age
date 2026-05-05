@@ -1,0 +1,37 @@
+{
+  "alert_id": "bio-age-subdomain-down-2026-05-05T16-16-51-9c7ee948",
+  "ts": "2026-05-05T16:16:51+09:00",
+  "project": "bio-age",
+  "pattern": "subdomain-down",
+  "severity_initial": "silent",
+  "severity_final": "silent",
+  "raw": {
+    "message": "🌐 **`bio-age.exp.game`** 公网不响应（000 = Cloudflare 连不上本机（tunnel 断 / 端口配错））\n   👉 *什么意思*：本机进程 + 端口 + cloudflare 路由 都配过，但外网不通 — 可能 后端服务挂 / tunnel 实时断\n   👉 *建议*：`~/dev/exp-deploy/service-mgr.sh deploy bio-age`（重 build + 重启）；如果 cloudflared 也不行 `launchctl kickstart -k gui/$(id -u)/com.tunnel.proxy.harness`\n   ↳ suppressed: grouped into shared-subdomain-degraded",
+    "meta": {
+      "suppressed_by_shared_cause": "shared-subdomain-degraded"
+    },
+    "pattern": "subdomain-down",
+    "project": "bio-age"
+  },
+  "message": "🌐 **`bio-age.exp.game`** 公网不响应（000 = Cloudflare 连不上本机（tunnel 断 / 端口配错））\n   👉 *什么意思*：本机进程 + 端口 + cloudflare 路由 都配过，但外网不通 — 可能 后端服务挂 / tunnel 实时断\n   👉 *建议*：`~/dev/exp-deploy/service-mgr.sh deploy bio-age`（重 build + 重启）；如果 cloudflared 也不行 `launchctl kickstart -k gui/$(id -u)/com.tunnel.proxy.harness`\n   ↳ suppressed: grouped into shared-subdomain-degraded",
+  "detail": "",
+  "diagnosis": {
+    "verify_cmd": "/Users/lobster/dev/harness/lib/verify-subdomain.sh bio-age bio-age",
+    "exit": 0,
+    "stdout": "",
+    "stderr": "",
+    "duration_ms": 0,
+    "classification": "emitted",
+    "evidence": []
+  },
+  "discord_posted": false,
+  "discord_message_id": null,
+  "rick_resolution": null,
+  "meta": {
+    "dedupe_key": "9c7ee948",
+    "dedupe_source": "raw-json"
+  },
+  "self_fix": {
+    "attempted": false
+  }
+}
