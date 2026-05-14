@@ -1,0 +1,41 @@
+{
+  "alert_id": "bio-age-subdomain-down-2026-05-14T19-02-34-4f3ab7a4",
+  "ts": "2026-05-14T19:02:34+09:00",
+  "project": "bio-age",
+  "pattern": "subdomain-down",
+  "severity_initial": "escalate",
+  "severity_final": "silent",
+  "raw": {
+    "message": "🌐 **`bio-age.exp.game`** 公网不响应（000 = Cloudflare 连不上本机（tunnel 断 / 端口配错））\n   👉 *什么意思*：本机进程 + 端口 + cloudflare 路由 都配过，但外网不通 — 可能 后端服务挂 / tunnel 实时断\n   👉 *建议*：`~/dev/exp-deploy/service-mgr.sh deploy bio-age`（重 build + 重启）；如果 cloudflared 也不行 `launchctl kickstart -k gui/$(id -u)/com.tunnel.proxy.harness`",
+    "meta": null,
+    "pattern": "subdomain-down",
+    "project": "bio-age"
+  },
+  "message": "🌐 **`bio-age.exp.game`** 公网不响应（000 = Cloudflare 连不上本机（tunnel 断 / 端口配错））\n   👉 *什么意思*：本机进程 + 端口 + cloudflare 路由 都配过，但外网不通 — 可能 后端服务挂 / tunnel 实时断\n   👉 *建议*：`~/dev/exp-deploy/service-mgr.sh deploy bio-age`（重 build + 重启）；如果 cloudflared 也不行 `launchctl kickstart -k gui/$(id -u)/com.tunnel.proxy.harness`",
+  "detail": "",
+  "diagnosis": {
+    "verify_cmd": "/Users/lobster/dev/harness/lib/verify-subdomain.sh bio-age bio-age",
+    "exit": 1,
+    "stdout": "  - retry: HTTP 401 ✓ (subdomain came back)\nVERDICT: subdomain healthy on retry — REJECT anomaly",
+    "stderr": "",
+    "duration_ms": 1658,
+    "classification": "verify-rejected",
+    "evidence": [
+      {
+        "primitive": "retry",
+        "result": "HTTP 401 ✓ (subdomain came back)",
+        "kind": "positive"
+      }
+    ]
+  },
+  "discord_posted": false,
+  "discord_message_id": null,
+  "rick_resolution": null,
+  "meta": {
+    "dedupe_key": "4f3ab7a4",
+    "dedupe_source": "raw-json"
+  },
+  "self_fix": {
+    "attempted": false
+  }
+}
