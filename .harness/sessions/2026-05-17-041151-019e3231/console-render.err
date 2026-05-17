@@ -1,0 +1,63 @@
+render-session-console: Nextra build failed: 9e2e4d-9d89-7852-b02d-fb1bfe0a0a79-18d618c4bd.mdx.
+[nextra] Error compiling /Users/lobster/dev/harness/console/content/sessions/codex-session-019e2e4d-9d89-7852-b02d-fb1bfe0a0a79-18d618c4bd.mdx.
+<w> [webpack.cache.PackFileCacheStrategy] Skipped not serializable cache item 'Compilation/modules|javascript/auto|/Users/lobster/dev/harness/console/node_modules/next/dist/build/webpack/loaders/next-flight-loader/index.js!/Users/lobster/dev/harness/console/node_modules/next/dist/build/webpack/loaders/next-swc-loader.js??ruleSet[1].rules[25].oneOf[1].use[0]!/Users/lobster/dev/harness/console/node_modules/nextra/loader.cjs??ruleSet[1].rules[25].oneOf[1].use[1]!/Users/lobster/dev/harness/console/content/sessions/codex-session-019e2e4d-9d89-7852-b02d-fb1bfe0a0a79-18d618c4bd.mdx|rsc': No serializer registered for VFileMessage
+<w> while serializing webpack/lib/cache/PackFileCacheStrategy.PackContentItems -> webpack/lib/NormalModule -> webpack/lib/ModuleBuildError -> VFileMessage
+<w> [webpack.cache.PackFileCacheStrategy] Skipped not serializable cache item 'Compilation/modules|javascript/auto|/Users/lobster/dev/harness/console/node_modules/next/dist/build/webpack/loaders/next-flight-loader/index.js!/Users/lobster/dev/harness/console/node_modules/next/dist/build/webpack/loaders/next-swc-loader.js??ruleSet[1].rules[25].oneOf[1].use[0]!/Users/lobster/dev/harness/console/node_modules/nextra/loader.cjs??ruleSet[1].rules[25].oneOf[1].use[1]!/Users/lobster/dev/harness/console/content/sessions/codex-session-019e2e4d-9d89-7852-b02d-fb1bfe0a0a79-18d618c4bd.mdx?metadata|rsc': No serializer registered for VFileMessage
+<w> while serializing webpack/lib/cache/PackFileCacheStrategy.PackContentItems -> webpack/lib/NormalModule -> webpack/lib/ModuleBuildError -> VFileMessage
+Failed to compile.
+
+./content/sessions/codex-session-019e2b39-1e75-7420-9623-c221efdcd9ec-e520212f73.mdx?metadata
+Module not found: Can't resolve '~/dev/bodyOS/.artifacts/dynamic-plan/codex-ios-mobile-all-day-tasks.png'
+
+https://nextjs.org/docs/messages/module-not-found
+
+Import trace for requested module:
+./node_modules/nextra/dist/server/page-map/placeholder.js?lang=
+./node_modules/nextra/dist/server/page-map/get.js
+./node_modules/nextra/dist/server/page-map/index.js
+./app/layout.jsx
+
+./content/sessions/codex-session-019e2b39-1e75-7420-9623-c221efdcd9ec-e520212f73.mdx?metadata
+Module not found: Can't resolve '~/dev/bodyOS/.artifacts/dynamic-plan/codex-ios-mobile-artery-week.png'
+
+https://nextjs.org/docs/messages/module-not-found
+
+Import trace for requested module:
+./node_modules/nextra/dist/server/page-map/placeholder.js?lang=
+./node_modules/nextra/dist/server/page-map/get.js
+./node_modules/nextra/dist/server/page-map/index.js
+./app/layout.jsx
+
+./content/sessions/codex-session-019e2b39-1e75-7420-9623-c221efdcd9ec-e520212f73.mdx?metadata
+Module not found: Can't resolve '~/dev/bodyOS/.artifacts/dynamic-plan/codex-ios-mobile-kidney-week.png'
+
+https://nextjs.org/docs/messages/module-not-found
+
+Import trace for requested module:
+./node_modules/nextra/dist/server/page-map/placeholder.js?lang=
+./node_modules/nextra/dist/server/page-map/get.js
+./node_modules/nextra/dist/server/page-map/index.js
+./app/layout.jsx
+
+./content/sessions/codex-session-019e2b39-1e75-7420-9623-c221efdcd9ec-e520212f73.mdx
+Module not found: Can't resolve '~/dev/bodyOS/.artifacts/dynamic-plan/codex-ios-mobile-all-day-tasks.png'
+
+https://nextjs.org/docs/messages/module-not-found
+
+Import trace for requested module:
+./content/ sync ^\.\/.*.*$
+./node_modules/nextra/dist/client/pages.js
+./app/[[...mdxPath]]/page.jsx
+
+./content/sessions/codex-session-019e2b39-1e75-7420-9623-c221efdcd9ec-e520212f73.mdx
+Module not found: Can't resolve '~/dev/bodyOS/.artifacts/dynamic-plan/codex-ios-mobile-artery-week.png'
+
+https://nextjs.org/docs/messages/module-not-found
+
+Import trace for requested module:
+./content/ sync ^\.\/.*.*$
+./node_modules/nextra/dist/client/pages.js
+./app/[[...mdxPath]]/page.jsx
+
+
+> Build failed because of webpack errors

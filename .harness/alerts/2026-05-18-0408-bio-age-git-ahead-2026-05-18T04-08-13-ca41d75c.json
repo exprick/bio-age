@@ -1,0 +1,35 @@
+{
+  "alert_id": "bio-age-git-ahead-2026-05-18T04-08-13-ca41d75c",
+  "ts": "2026-05-18T04:08:13+09:00",
+  "project": "bio-age",
+  "pattern": "git-ahead",
+  "severity_initial": "cleanup",
+  "severity_final": "cleanup",
+  "raw": {
+    "message": "📦 **`bio-age`** 7 commits 没推 GitHub（最近 commit 1d 前）（+ 4 条）\n        - 782458b chore: daily auto-commit 2026-05-17\n        - 2920737 chore: daily auto-commit 2026-05-16\n        - bb95cfb chore: daily auto-commit 2026-05-15\n   👉 *建议*：要推 → 回我「push bio-age」我帮你跑；不推 → 回我「忽略 bio-age」，下次扫不再提",
+    "meta": null,
+    "pattern": "git-ahead",
+    "project": "bio-age"
+  },
+  "message": "📦 **`bio-age`** 7 commits 没推 GitHub（最近 commit 1d 前）（+ 4 条）\n        - 782458b chore: daily auto-commit 2026-05-17\n        - 2920737 chore: daily auto-commit 2026-05-16\n        - bb95cfb chore: daily auto-commit 2026-05-15\n   👉 *建议*：要推 → 回我「push bio-age」我帮你跑；不推 → 回我「忽略 bio-age」，下次扫不再提",
+  "detail": "",
+  "diagnosis": {
+    "verify_cmd": "",
+    "exit": 0,
+    "stdout": "",
+    "stderr": "",
+    "duration_ms": 0,
+    "classification": "emitted",
+    "evidence": []
+  },
+  "discord_posted": false,
+  "discord_message_id": null,
+  "rick_resolution": null,
+  "meta": {
+    "dedupe_key": "ca41d75c",
+    "dedupe_source": "raw-json"
+  },
+  "self_fix": {
+    "attempted": false
+  }
+}
