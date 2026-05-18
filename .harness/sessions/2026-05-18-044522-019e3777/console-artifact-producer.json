@@ -1,0 +1,11 @@
+{
+  "status": "written",
+  "reason": "ok",
+  "artifact_dir": "/Users/lobster/dev/harness/console/manual-sessions/auto-codex-bio-age-019e3777-c92e-7613-8e80-499d60ece14a-f4fb1468af",
+  "slug": "auto-codex-bio-age-019e3777-c92e-7613-8e80-499d60ece14a-f4fb1468af",
+  "project": "bio-age",
+  "vendor": "codex",
+  "target_session_id": "codex:session:019e3777-c92e-7613-8e80-499d60ece14a",
+  "target_external_id": "019e3777-c92e-7613-8e80-499d60ece14a",
+  "title": "Review the code changes introduced by commit 4d3a779eac55feb39cb0347e368fb32c73821066. Provide prioritized, actionable findings."
+}
